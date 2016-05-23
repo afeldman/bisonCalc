@@ -20,7 +20,11 @@ exp:      NUM             { $$ = $1;         }
         | exp exp '+'     { $$ = $1 + $2;    }
         | exp exp '-'     { $$ = $1 - $2;    }
         | exp exp '*'     { $$ = $1 * $2;    }
-        | exp exp '/'     { $$ = $1 / $2;    }
+        | exp exp '/'
+             { if($2 == 0.0)
+                 yyerror("divided by zero");
+               else
+                 $$ = $1 / $2;    }
       /* Exponentiation */
         | exp exp '^'     { $$ = pow ($1, $2); }
       /* Unary minus    */
@@ -36,13 +40,12 @@ exp:      NUM             { $$ = $1;         }
 #include <ctype.h>
 #include <stdio.h>
 
-yyerror (s)  /* Called by yyparse on error */
-     char *s;
+void yyerror (char *s)  /* Called by yyparse on error */
 {
   printf ("%s\n", s);
 }
 
-yylex ()
+int yylex ()
 {
   int c;
 
@@ -63,7 +66,7 @@ yylex ()
   return c;                                
 }
 
-main ()
+int main ()
 {
   yyparse ();
 }
